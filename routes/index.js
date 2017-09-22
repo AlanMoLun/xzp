@@ -62,7 +62,7 @@ router.post('/ajax/order/update', function(req, res) {
             res.status(500).json({error: err.message});
         } else {
             if(auth || !auth) {
-                group_orders.update(req.body, function (err, reply) {
+                group_orders.update(req.body.updateObj, function (err, reply) {
                     if (err) {
                         res.status(500).json({error: err.message});
                     } else {
@@ -82,7 +82,7 @@ router.post('/ajax/order/updatePO', function(req, res) {
             res.status(500).json({error: err.message});
         } else {
             if (auth || !auth) {
-                group_orders.updatePO(req.body, function (err, reply) {
+                group_orders.updatePO(req.body.updateObj, function (err, reply) {
                     if (err) {
                         res.status(500).json({error: err.message});
                     } else {
@@ -102,7 +102,7 @@ router.post('/ajax/order/updateItem', function(req, res) {
             res.status(500).json({error: err.message});
         } else {
             if (auth) {
-                group_orders.updateItem(req.body, function (err, reply) {
+                group_orders.updateItem(req.body.updateObj, function (err, reply) {
                     if (err) {
                         res.status(500).json({error: err.message});
                     } else {
