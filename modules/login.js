@@ -13,8 +13,8 @@ login.getAuth = function (req, next) {
 
 login.checkAuth = function (req, next) {
     var sessionId = req.body.sessionId;
-    var code = req.body.code;
-    checkAuthFromCache(sessionId, code, function (err, sId) {
+    var userId = req.body.userId;
+    checkAuthFromCache(sessionId, userId, function (err, sId) {
         if (sId) {
             next(err, true);
         } else {
@@ -65,13 +65,13 @@ function checkLoginStatus(code, next) {
     }
 }
 
-function checkAuthFromCache(sessionId, code, next){
+function checkAuthFromCache(sessionId, userId, next){
     var cache = global.cache;
     if(sessionId){
         cache.get(sessionId, function (err, reply) {
             if(reply){
                 reply = util.parseJSON(reply);
-                if(code == reply.code) {
+                if(userId == reply.userId) {
                     next(err, sessionId);
                 } else {
                     next(null, null);
