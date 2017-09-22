@@ -62,50 +62,41 @@ util.sqlExec = function (pool, strsql, sqlObj, next){
     });
 };
 
-util.mongoFind = function (queryObj, next){
+util.mongoFind = function (queryObj, next) {
     var url = global.mongoDbOptions.url;
-    if(queryObj && !_.isEmpty(queryObj)){
-        mongoDb.MongoClient.connect(url, function (err, db) {
-            db.collection("group_orders").find(queryObj,{_id: false}).toArray(next);
-            db.close();
-        });
-    } else {
-        mongoDb.MongoClient.connect(url, function (err, db) {
-            db.collection("group_orders").find({},{_id: false}).toArray(next);
-            db.close();
-        });
-    }
+    mongoDb.MongoClient.connect(url, function (err, db) {
+        if (queryObj && !_.isEmpty(queryObj)) {
+            db.collection("group_orders").find(queryObj, {_id: false}).toArray(next);
+        } else {
+            db.collection("group_orders").find({}, {_id: false}).toArray(next);
+        }
+        db.close();
+    });
 };
 
 util.mongoUpdate = function (queryObj, updateObj, callback) {
-    async.waterfall([
-            function (next) {
-                var url = global.mongoDbOptions.url;
-                if (queryObj && !_.isEmpty(queryObj)) {
-                    mongoDb.MongoClient.connect(url, function (err, db) {
+    var url = global.mongoDbOptions.url;
+    mongoDb.MongoClient.connect(url, function (err, db) {
+        async.waterfall([
+                function (next) {
+                    if (queryObj && !_.isEmpty(queryObj)) {
                         db.collection("group_orders").find(queryObj).toArray(next);
-                        db.close();
-                    });
-                } else {
-                    next(null, null);
-                }
-            },
-            function (foundObj, next) {
-                if (foundObj && !_.isEmpty(foundObj)) {
-                    mongoDb.MongoClient.connect(url, function (err, db) {
+                    } else {
+                        next(null, null);
+                    }
+                },
+                function (foundObj, next) {
+                    if (foundObj && !_.isEmpty(foundObj)) {
                         db.collection("group_orders").updateOne(queryObj, updateObj, next);
-                        db.close();
-                    });
-                } else {
-                    mongoDb.MongoClient.connect(url, function (err, db) {
+                    } else {
                         db.collection("group_orders").insertOne(updateObj, next);
-                        db.close();
-                    });
-                }
-            }],
-        function (err, result) {
-            callback(err, result);
-        });
+                    }
+                }],
+            function (err, result) {
+                db.close();
+                callback(err, result);
+            });
+    });
 };
 
 util.mongoUpdatePO = function (queryObj, updateObj, callback) {
