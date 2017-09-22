@@ -50,7 +50,7 @@ function checkLoginStatus(code, next) {
                             next(err);
                         } else {
                             cache.expire(cache_key, 7200);
-                            next(null, {sessionId: cache_key, userId: userId);
+                            next(null, {sessionId: cache_key, userId: userId});
                         }
                     });
                 } else {
