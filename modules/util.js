@@ -146,13 +146,16 @@ util.matchUserId = function (authUser, updatingDocType, req) {
                 return true;
             }
         } else if (updatingDocType == "orders") {
-            if (req.body.updateObj.order && req.body.updateObj.order.user_info) {
-                Obj_user_id = req.body.updateObj.order.userId;
-            } else {
-                return true;
+            if (req.body.updateObj.order) {
+                if (req.body.updateObj.order.user_info) {
+                    Obj_user_id = req.body.updateObj.order.userId;
+                } else {
+                    return true;
+                }
             }
         }
     }
+
     return (Obj_user_id && authUser.userId == Obj_user_id);
 };
 
