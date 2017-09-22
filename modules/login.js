@@ -72,16 +72,16 @@ function checkAuthFromCache(sessionId, userId, next){
             if(reply){
                 reply = util.parseJSON(reply);
                 if(userId == reply.userId) {
-                    next(err, sessionId);
+                    next(err, sessionId, reply);
                 } else {
-                    next(null, null);
+                    next(null, null, null);
                 }
             } else {
-                next(null, null);
+                next(null, null, null);
             }
         });
     } else {
-        next(null, null);
+        next(null, null, null);
     }
 }
 

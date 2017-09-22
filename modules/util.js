@@ -133,6 +133,29 @@ util.mongoUpdateItem = function (queryObj, updateObj, callback) {
     });
 };
 
+util.matchUserId = function (authUser, updatingDocType, req) {
+    var Obj_user_id = "";
+    if(!authUser){
+        return false;
+    }
+    if(req.body.updateObj) {
+        if (updatingDocType == "group_orders") {
+            if (req.body.updateObj.user_info) {
+                Obj_user_id = req.body.updateObj.user_info.userId;
+            } else {
+                return true;
+            }
+        } else if (updatingDocType == "orders") {
+            if (req.body.updateObj.order && req.body.updateObj.order.user_info) {
+                Obj_user_id = req.body.updateObj.order.userId;
+            } else {
+                return true;
+            }
+        }
+    }
+    return (Obj_user_id && authUser.userId == Obj_user_id);
+};
+
 util.getTS = function (datetime) {
     var intDateTime = new Date().getTime();
     if (datetime) {
