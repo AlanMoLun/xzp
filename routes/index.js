@@ -101,7 +101,7 @@ router.post('/ajax/order/updateItem', function(req, res) {
         if (err) {
             res.status(500).json({error: err.message});
         } else {
-            if (auth || !auth) {
+            if (auth) {
                 group_orders.updateItem(req.body, function (err, reply) {
                     if (err) {
                         res.status(500).json({error: err.message});
