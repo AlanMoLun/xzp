@@ -62,17 +62,13 @@ router.post('/ajax/order/update', function(req, res) {
             res.status(500).json({error: err.message});
         } else {
             if(auth) {
-                if(util.matchUserId(authUser, "group_orders", req)){
-                    group_orders.update(req.body.updateObj, function (err, reply) {
-                        if (err) {
-                            res.status(500).json({error: err.message});
-                        } else {
-                            res.send(reply);
-                        }
-                    });
-                } else {
-                    res.status(401).json({error: "Authentication not pass, userId doesn't match"});
-                }
+                group_orders.update(req.body.updateObj, function (err, reply) {
+                    if (err) {
+                        res.status(500).json({error: err.message});
+                    } else {
+                        res.send(reply);
+                    }
+                });
             } else {
                 res.status(401).json({error: "Authentication not pass or expired, please login again"});
             }
@@ -86,17 +82,13 @@ router.post('/ajax/order/updatePO', function(req, res) {
             res.status(500).json({error: err.message});
         } else {
             if (auth) {
-                if(util.matchUserId(authUser, "group_orders", req)) {
-                    group_orders.updatePO(req.body.updateObj, function (err, reply) {
-                        if (err) {
-                            res.status(500).json({error: err.message});
-                        } else {
-                            res.send(reply);
-                        }
-                    });
-                } else {
-                    res.status(401).json({error: "Authentication not pass, userId doesn't match"});
-                }
+                group_orders.updatePO(req.body.updateObj, function (err, reply) {
+                    if (err) {
+                        res.status(500).json({error: err.message});
+                    } else {
+                        res.send(reply);
+                    }
+                });
             } else {
                 res.status(401).json({error: "Authentication not pass or expired, please login again"});
             }
@@ -110,17 +102,13 @@ router.post('/ajax/order/updateItem', function(req, res) {
             res.status(500).json({error: err.message});
         } else {
             if (auth) {
-                if(util.matchUserId(authUser, "group_orders", req)) {
-                    group_orders.updateItem(req.body.updateObj, function (err, reply) {
-                        if (err) {
-                            res.status(500).json({error: err.message});
-                        } else {
-                            res.send(reply);
-                        }
-                    });
-                } else {
-                    res.status(401).json({error: "Authentication not pass, userId doesn't match"});
-                }
+                group_orders.updateItem(req.body.updateObj, function (err, reply) {
+                    if (err) {
+                        res.status(500).json({error: err.message});
+                    } else {
+                        res.send(reply);
+                    }
+                });
             } else {
                 res.status(401).json({error: "Authentication not pass or expired, please login again"});
             }
