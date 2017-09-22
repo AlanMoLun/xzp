@@ -1,7 +1,6 @@
 var express = require('express');
 var _ = require('../libs/underscore-min.js');
 var util = require('../modules/util');
-var async = require('async');
 var request = require('request');
 
 var login = {};

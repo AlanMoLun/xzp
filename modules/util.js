@@ -6,6 +6,7 @@ var parser = new UAParser();
 var crypto = require("crypto");
 var mongoDb = require('mongodb');
 var async = require("async");
+var local = require('./local');
 
 var util = {};
 
