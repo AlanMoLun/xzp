@@ -122,7 +122,7 @@ util.mongoUpdatePO = function (queryObj, updateObj, callback) {
                 function (foundObj, next) {
                     if (foundObj && !_.isEmpty(foundObj)) {
                         delete updateObj.id;
-                        db.collection("group_orders").updateOne(queryObj, {$set: updateObj}, next);
+                        db.collection("group_orders").updateOne(queryObj, {$set: {"orders.$": updateObj}}, next);
                     } else {
                         queryObj = {id: queryObj.id};
                         db.collection("group_orders").updateOne(queryObj, {$push: {"orders": updateObj}}, next);
@@ -167,9 +167,9 @@ util.mongoRemove = function (authUser, queryObj, callback) {
 
 util.matchUserId = function (authUser, user_info) {
     if(!authUser){
-        return false;
+        return isDevelopment;
     }
-    return ((authUser.userId == user_info.userId) || isDevelopment);
+    return (authUser.userId == user_info.userId);
 };
 
 util.getTS = function (datetime) {
