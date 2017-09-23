@@ -74,6 +74,14 @@ util.mongoFind = function (queryObj, next) {
     });
 };
 
+util.mongoAggregate = function (aggregates, next) {
+    var url = global.mongoDbOptions.url;
+    mongoDb.MongoClient.connect(url, function (err, db) {
+        db.collection("group_orders").aggregate(aggregates, next);
+        db.close();
+    });
+};
+
 util.mongoUpdate = function (queryObj, updateObj, callback) {
     var url = global.mongoDbOptions.url;
     mongoDb.MongoClient.connect(url, function (err, db) {
@@ -113,7 +121,8 @@ util.mongoUpdatePO = function (queryObj, updateObj, callback) {
                 },
                 function (foundObj, next) {
                     if (foundObj && !_.isEmpty(foundObj)) {
-                        db.collection("group_orders").updateOne(queryObj, {$set: {"orders.$.purchases": updateObj.purchases, "orders.$.user_info": updateObj.user_info}}, next);
+                        delete updateObj.id;
+                        db.collection("group_orders").updateOne(queryObj, {$set: updateObj}, next);
                     } else {
                         queryObj = {id: queryObj.id};
                         db.collection("group_orders").updateOne(queryObj, {$push: {"orders": updateObj}}, next);

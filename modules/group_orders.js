@@ -21,6 +21,32 @@ group_orders.listByName = function (name, next) {
     util.mongoFind(queryObj, next);
 };
 
+group_orders.listByUserId = function (userId, callback) {
+    if (userId) {
+        async.parallel([
+            function (next) {
+                var queryObj = {};
+                queryObj.user_info = {};
+                queryObj.user_info.userId = userId;
+                util.mongoFind(queryObj, next);
+            },
+            function (next) {
+                var aggregates = [];
+                aggregates.push({$unwind: "$orders"});
+                aggregates.push({$match: {"orders.user_info.userId": userId}});
+                util.mongoAggregate(aggregates, next);
+            }
+        ], function (err, result) {
+            result = _.uniq(result);
+            result = _.compact(result);
+            result = _.flatten(result);
+            callback(err, result);
+        });
+    } else {
+        callback(new Error("provided userId is empty"));
+    }
+};
+
 group_orders.update = function (updateObj, next) {
     if(updateObj && updateObj.group_order_id) {
         var queryObj = {};

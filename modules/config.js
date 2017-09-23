@@ -15,7 +15,7 @@ app_config.mongoDBOptions = function(env){
 
     switch(env) {
         case 'development':
-            host = 's1.thebusy.net';
+            host = '119.29.88.120';
             database = 'group_orders';
             user = local.mongodb.user;
             password = local.mongodb.password;

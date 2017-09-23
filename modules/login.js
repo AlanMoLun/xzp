@@ -14,6 +14,12 @@ login.getAuth = function (req, next) {
 login.checkAuth = function (req, next) {
     var sessionId = req.body.sessionId;
     var userId = req.body.userId;
+    if(!sessionId) {
+        sessionId = req.query.sessionId;
+    }
+    if(!userId) {
+        userId = req.query.userId;
+    }
     checkAuthFromCache(sessionId, userId, function (err, sId) {
         if (sId) {
             next(err, true);
