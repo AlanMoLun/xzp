@@ -125,10 +125,11 @@ util.mongoUpdatePO = function (queryObj, updateObj, callback) {
     });
 };
 
-util.mongoUpdateItem = function (queryObj, updateObj, callback) {
+util.mongoUpdateSubItem = function (queryObj, updateObj, callback) {
     var url = global.mongoDbOptions.url;
+    console.log("queryObj", queryObj);
     mongoDb.MongoClient.connect(url, function (err, db) {
-        db.collection("group_orders").updateOne(queryObj, {$set: {"items": updateObj.items, "title": updateObj.title}}, callback);
+        db.collection("group_orders").updateOne(queryObj, {$set: updateObj}, callback);
         db.close();
     });
 };

@@ -40,10 +40,11 @@ group_orders.updatePO = function (updateObj, next) {
     }
 };
 
-group_orders.updateItem = function (updateObj, next) {
+group_orders.updateSubItem = function (updateObj, next) {
     if(updateObj && (updateObj.title || (updateObj.items && updateObj.items.length))) {
         var queryObj = {id: updateObj.group_order_id};
-        util.mongoUpdateItem(queryObj, updateObj, next);
+        delete  updateObj.group_order_id;
+        util.mongoUpdateSubItem(queryObj, updateObj, next);
     } else {
         next(new Error("provided object is empty"));
     }

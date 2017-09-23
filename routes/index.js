@@ -96,13 +96,13 @@ router.post('/ajax/order/updatePO', function(req, res) {
     });
 });
 
-router.post('/ajax/order/updateItem', function(req, res) {
+router.post('/ajax/order/updateSubItem', function(req, res) {
     login.checkAuth(req, function (err, auth, authUser) {
         if (err) {
             res.status(500).json({error: err.message});
         } else {
             if (auth) {
-                group_orders.updateItem(req.body.updateObj, function (err, reply) {
+                group_orders.updateSubItem(req.body.updateObj, function (err, reply) {
                     if (err) {
                         res.status(500).json({error: err.message});
                     } else {
