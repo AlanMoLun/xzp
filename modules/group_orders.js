@@ -22,9 +22,11 @@ group_orders.listByName = function (name, next) {
 };
 
 group_orders.update = function (updateObj, next) {
-    if(updateObj && updateObj.id) {
+    if(updateObj && updateObj.group_order_id) {
         var queryObj = {};
-        queryObj.id = updateObj.id;
+        queryObj.id = updateObj.group_order_id;
+        updateObj.id = updateObj.group_order_id;
+        delete  updateObj.group_order_id;
         util.mongoUpdate(queryObj, updateObj, next);
     } else {
         next(new Error("provided object is empty"));
@@ -35,16 +37,6 @@ group_orders.updatePO = function (updateObj, next) {
     if(updateObj && updateObj.order_id) {
         var queryObj = {id: updateObj.group_order_id, "orders.id": updateObj.order_id};
         util.mongoUpdatePO(queryObj, updateObj.order, next);
-    } else {
-        next(new Error("provided object is empty"));
-    }
-};
-
-group_orders.updateSubItem = function (updateObj, next) {
-    if(updateObj && (updateObj.title || (updateObj.items && updateObj.items.length))) {
-        var queryObj = {id: updateObj.group_order_id};
-        delete  updateObj.group_order_id;
-        util.mongoUpdateSubItem(queryObj, updateObj, next);
     } else {
         next(new Error("provided object is empty"));
     }

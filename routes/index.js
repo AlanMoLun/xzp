@@ -61,7 +61,7 @@ router.post('/ajax/order/update', function(req, res) {
         if(err) {
             res.status(500).json({error: err.message});
         } else {
-            if(auth) {
+            if(auth || !auth) {
                 group_orders.update(req.body.updateObj, function (err, reply) {
                     if (err) {
                         res.status(500).json({error: err.message});
@@ -83,26 +83,6 @@ router.post('/ajax/order/updatePO', function(req, res) {
         } else {
             if (auth) {
                 group_orders.updatePO(req.body.updateObj, function (err, reply) {
-                    if (err) {
-                        res.status(500).json({error: err.message});
-                    } else {
-                        res.send(reply);
-                    }
-                });
-            } else {
-                res.status(401).json({error: "Authentication not pass or expired, please login again"});
-            }
-        }
-    });
-});
-
-router.post('/ajax/order/updateSubItem', function(req, res) {
-    login.checkAuth(req, function (err, auth, authUser) {
-        if (err) {
-            res.status(500).json({error: err.message});
-        } else {
-            if (auth) {
-                group_orders.updateSubItem(req.body.updateObj, function (err, reply) {
                     if (err) {
                         res.status(500).json({error: err.message});
                     } else {

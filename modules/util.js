@@ -87,7 +87,8 @@ util.mongoUpdate = function (queryObj, updateObj, callback) {
                 },
                 function (foundObj, next) {
                     if (foundObj && !_.isEmpty(foundObj)) {
-                        db.collection("group_orders").updateOne(queryObj, updateObj, next);
+                        delete updateObj.id;
+                        db.collection("group_orders").updateOne(queryObj, {$set: updateObj}, next);
                     } else {
                         db.collection("group_orders").insertOne(updateObj, next);
                     }
@@ -122,15 +123,6 @@ util.mongoUpdatePO = function (queryObj, updateObj, callback) {
                 db.close();
                 callback(err, result);
             });
-    });
-};
-
-util.mongoUpdateSubItem = function (queryObj, updateObj, callback) {
-    var url = global.mongoDbOptions.url;
-    console.log("queryObj", queryObj);
-    mongoDb.MongoClient.connect(url, function (err, db) {
-        db.collection("group_orders").updateOne(queryObj, {$set: updateObj}, callback);
-        db.close();
     });
 };
 
