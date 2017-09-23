@@ -84,6 +84,11 @@ group_orders.list_mysql = function (id, callback) {
         });
 };
 
+group_orders.remove = function (authUser, group_order_id, next) {
+        var queryObj = {id: group_order_id};
+        util.mongoRemove(authUser, queryObj, next);
+};
+
 function getCategoryIDs(next) {
     var pool = global.db;
     var strsql = "SELECT id FROM group_order WHERE STATUS=0 AND DELETED_AT IS NULL";

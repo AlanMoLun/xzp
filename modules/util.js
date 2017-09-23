@@ -135,11 +135,41 @@ util.mongoUpdatePO = function (queryObj, updateObj, callback) {
     });
 };
 
+util.mongoRemove = function (authUser, queryObj, callback) {
+    var url = global.mongoDbOptions.url;
+    mongoDb.MongoClient.connect(url, function (err, db) {
+        async.waterfall([
+                function (next) {
+                    if (queryObj && !_.isEmpty(queryObj)) {
+                        db.collection("group_orders").findOne(queryObj, next);
+                    } else {
+                        next(null, null);
+                    }
+                },
+                function (foundObj, next) {
+                    if (foundObj && !_.isEmpty(foundObj)) {
+                        var isUserIdMatch = util.matchUserId(authUser, foundObj.user_info);
+                        if(isUserIdMatch) {
+                            db.collection("group_orders").findOneAndDelete(queryObj, next);
+                        } else {
+                            next(new Error("Authentication not pass, only owner can delete this order"));
+                        }
+                    } else {
+                        next(new Error("group order not found"));
+                    }
+                }],
+            function (err, result) {
+                db.close();
+                callback(err, result);
+            });
+    });
+};
+
 util.matchUserId = function (authUser, user_info) {
     if(!authUser){
         return false;
     }
-    return (authUser.userId == user_info.userId);
+    return ((authUser.userId == user_info.userId) || isDevelopment);
 };
 
 util.getTS = function (datetime) {

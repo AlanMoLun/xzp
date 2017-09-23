@@ -118,6 +118,26 @@ router.post('/ajax/order/updatePO', function(req, res) {
     });
 });
 
+router.post('/ajax/order/delete', function(req, res) {
+    login.checkAuth(req, function (err, auth, authUser) {
+        if (err) {
+            res.status(500).json({error: err.message});
+        } else {
+            if (auth || isDevelopment) {
+                group_orders.remove(authUser, req.body.group_order_id, function (err, reply) {
+                    if (err) {
+                        res.status(500).json({error: err.message});
+                    } else {
+                        res.send(reply);
+                    }
+                });
+            } else {
+                res.status(401).json({error: "Authentication not pass or expired, please login again"});
+            }
+        }
+    });
+});
+
 router.get('/ajax/item/get', function(req, res) {
   var id = req.query.id;
   util.getModelFieldValue("item", "id", id, function(err, dishObj){
