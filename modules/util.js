@@ -121,7 +121,6 @@ util.mongoUpdatePO = function (queryObj, updateObj, callback) {
                 },
                 function (foundObj, next) {
                     if (foundObj && !_.isEmpty(foundObj)) {
-                        delete updateObj.id;
                         db.collection("group_orders").updateOne(queryObj, {$set: {"orders.$": updateObj}}, next);
                     } else {
                         queryObj = {id: queryObj.id};
