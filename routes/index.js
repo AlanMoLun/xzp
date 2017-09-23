@@ -51,8 +51,7 @@ router.get('/ajax/order/list_by_userId', function(req, res) {
             res.status(500).json({error: err.message});
         } else {
             if(auth || isDevelopment) {
-                // var userId = authUser.userId;
-                var userId = req.query.userId;
+                var userId = authUser.userId;
                 group_orders.listByUserId(userId, function(err, orders){
                     if(err){
                         res.status(500).json({error: err.message});
