@@ -62,13 +62,13 @@ util.sqlExec = function (pool, strsql, sqlObj, next){
     });
 };
 
-util.mongoFind = function (queryObj, next) {
+util.mongoFind = function (queryObj, orderBy, next) {
     var url = global.mongoDbOptions.url;
     mongoDb.MongoClient.connect(url, function (err, db) {
         if (queryObj && !_.isEmpty(queryObj)) {
-            db.collection("group_orders").find(queryObj, {_id: false}).toArray(next);
+            db.collection("group_orders").find(queryObj, {_id: false}).sort(orderBy).toArray(next);
         } else {
-            db.collection("group_orders").find({}, {_id: false}).toArray(next);
+            db.collection("group_orders").find({}, {_id: false}).sort(orderBy).toArray(next);
         }
         db.close();
     });

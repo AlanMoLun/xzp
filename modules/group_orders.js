@@ -7,18 +7,11 @@ var group_orders = {};
 
 group_orders.list = function (id, next) {
     var queryObj = {};
-    if(id){
+    var orderBy = {created_at: -1};
+    if (id) {
         queryObj.id = id;
     }
-    util.mongoFind(queryObj, next);
-};
-
-group_orders.listByName = function (name, next) {
-    var queryObj = {};
-    if(name){
-        queryObj.name = name;
-    }
-    util.mongoFind(queryObj, next);
+    util.mongoFind(queryObj, orderBy, next);
 };
 
 group_orders.listByUserId = function (userId, callback) {
@@ -26,14 +19,16 @@ group_orders.listByUserId = function (userId, callback) {
         async.parallel([
             function (next) {
                 var queryObj = {};
+                var orderBy = {created_at: -1};
                 queryObj.user_info = {};
                 queryObj.user_info.userId = userId;
-                util.mongoFind(queryObj, next);
+                util.mongoFind(queryObj, orderBy, next);
             },
             function (next) {
                 var aggregates = [];
                 aggregates.push({$unwind: "$orders"});
                 aggregates.push({$match: {"orders.user_info.userId": userId}});
+                aggregates.push({ $sort : { created_at : -1}});
                 util.mongoAggregate(aggregates, next);
             }
         ], function (err, result) {

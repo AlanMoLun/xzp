@@ -51,9 +51,9 @@ router.get('/ajax/order/list_by_userId', function(req, res) {
             res.status(500).json({error: err.message});
         } else {
             if(auth || isDevelopment) {
-                var userId = authUser.userId;
-                group_orders.listByUserId(userId, function(err, orders){
-                    if(err){
+                var userId = req.query.userId;
+                group_orders.listByUserId(userId, function (err, orders) {
+                    if (err) {
                         res.status(500).json({error: err.message});
                     } else {
                         res.send(orders);
@@ -62,17 +62,6 @@ router.get('/ajax/order/list_by_userId', function(req, res) {
             } else {
                 res.status(401).json({error: "Authentication not pass or expired, please login again"});
             }
-        }
-    });
-});
-
-router.get('/ajax/order/list_by_name', function(req, res) {
-    var name = req.query.name;
-    group_orders.listByName(name, function(err, orders){
-        if(err){
-            res.status(500).json({error: err.message});
-        } else {
-            res.send(orders);
         }
     });
 });
