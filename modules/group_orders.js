@@ -30,9 +30,9 @@ group_orders.listByUserId = function (userId, callback) {
                 util.mongoAggregate(aggregates, next);
             }
         ], function (err, result) {
-            result = _.uniq(result);
             result = _.compact(result);
             result = _.flatten(result);
+            result = _.uniq(result);
             callback(err, result);
         });
     } else {
