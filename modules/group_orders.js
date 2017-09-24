@@ -18,10 +18,8 @@ group_orders.listByUserId = function (userId, callback) {
     if (userId) {
         async.parallel([
             function (next) {
-                var queryObj = {};
+                var queryObj = {"user_info.userId": userId};
                 var orderBy = {created_at: -1};
-                queryObj.user_info = {};
-                queryObj.user_info.userId = userId;
                 util.mongoFind(queryObj, orderBy, next);
             },
             function (next) {
