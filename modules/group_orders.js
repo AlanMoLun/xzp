@@ -34,7 +34,6 @@ group_orders.listByUserId = function (userId, callback) {
             result = _.flatten(result);
             result = _.compact(result);
             result = _.uniq(result, 'id');
-            console.log("cp1", result);
             callback(err, result);
         });
     } else {
