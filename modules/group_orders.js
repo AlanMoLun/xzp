@@ -25,13 +25,13 @@ group_orders.listByUserId = function (userId, callback) {
             function (next) {
                 var aggregates = [];
                 aggregates.push({$unwind: "$orders"});
-                aggregates.push({$match: {"orders.user_info.userId": userId}});
+                aggregates.push({$match: {"orders.user_info.userId": userId, _id: false}});
                 aggregates.push({ $sort : { created_at : -1}});
                 util.mongoAggregate(aggregates, next);
             }
         ], function (err, result) {
-            result = _.compact(result);
             result = _.flatten(result);
+            result = _.compact(result);
             result = _.uniq(result);
             callback(err, result);
         });
