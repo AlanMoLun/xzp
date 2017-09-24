@@ -25,14 +25,16 @@ group_orders.listByUserId = function (userId, callback) {
             function (next) {
                 var aggregates = [];
                 aggregates.push({$unwind: "$orders"});
-                aggregates.push({$match: {"orders.user_info.userId": userId, _id: false}});
+                aggregates.push({$match: {"orders.user_info.userId": userId}});
+                aggregates.push({$project: {_id: 0}});
                 aggregates.push({ $sort : { created_at : -1}});
                 util.mongoAggregate(aggregates, next);
             }
         ], function (err, result) {
             result = _.flatten(result);
             result = _.compact(result);
-            result = _.uniq(result);
+            result = _.uniq(result, 'id');
+            console.log("cp1", result);
             callback(err, result);
         });
     } else {
