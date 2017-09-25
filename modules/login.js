@@ -56,12 +56,12 @@ function checkLoginStatus(code, next) {
                             next(err);
                         } else {
                             cache.expire(cache_key, 7200);
-                            next(null, {sessionId: cache_key, userId: userId});
+                            next(null, true, {sessionId: cache_key, userId: userId});
                         }
                     });
                 } else {
                     console.log("error", err);
-                    next(err);
+                    next(null, false, {});
                 }
             }
         });

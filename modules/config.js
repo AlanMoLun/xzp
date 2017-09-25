@@ -80,7 +80,7 @@ app_config.initRedis = function (env) {
     var redisObj = {};
     switch(env) {
         case 'development':
-            redisObj.host = 's1.thebusy.net';
+            redisObj.host = '119.29.88.120';
             redisObj.port = '6379';
             redisObj.password = local.redis.password;
             break;

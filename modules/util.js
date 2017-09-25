@@ -147,7 +147,7 @@ util.mongoRemove = function (authUser, queryObj, callback) {
                 },
                 function (foundObj, next) {
                     if (foundObj && !_.isEmpty(foundObj)) {
-                        var isUserIdMatch = util.matchUserId(authUser, foundObj);
+                        var isUserIdMatch = util.matchUserId(authUser, foundObj.user_info);
                         if(isUserIdMatch) {
                             db.collection("group_orders").findOneAndDelete(queryObj, next);
                         } else {
