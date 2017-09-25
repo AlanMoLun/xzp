@@ -20,13 +20,7 @@ login.checkAuth = function (req, next) {
     if(!userId) {
         userId = req.query.userId;
     }
-    checkAuthFromCache(sessionId, userId, function (err, sId) {
-        if (sId) {
-            next(err, true);
-        } else {
-            next(err, false);
-        }
-    });
+    checkAuthFromCache(sessionId, userId, next);
 };
 
 function checkLoginStatus(code, next) {
@@ -56,12 +50,12 @@ function checkLoginStatus(code, next) {
                             next(err);
                         } else {
                             cache.expire(cache_key, 7200);
-                            next(null, true, {sessionId: cache_key, userId: userId});
+                            next(null, {sessionId: cache_key, userId: userId});
                         }
                     });
                 } else {
                     console.log("error", err);
-                    next(null, false, {});
+                    next(err);
                 }
             }
         });
@@ -78,16 +72,16 @@ function checkAuthFromCache(sessionId, userId, next){
             if(reply){
                 reply = util.parseJSON(reply);
                 if(userId == reply.userId) {
-                    next(err, sessionId, reply);
+                    next(err, true, reply);
                 } else {
-                    next(null, null, null);
+                    next(null, false, {});
                 }
             } else {
-                next(null, null, null);
+                next(null, false, {});
             }
         });
     } else {
-        next(null, null, null);
+        next(new Error("no sessionId provided"));
     }
 }
 
