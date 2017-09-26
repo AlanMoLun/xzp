@@ -34,6 +34,9 @@ group_orders.listByUserId = function (userId, callback) {
             result = _.flatten(result);
             result = _.compact(result);
             result = _.uniq(result, 'id');
+            result.sort(function (a, b) {
+                return a.created_at - b.created_at;
+            });
             callback(err, result);
         });
     } else {
