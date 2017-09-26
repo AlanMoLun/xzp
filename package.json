@@ -16,6 +16,7 @@
     "morgan": "~1.7.0",
     "request": "^2.81.0",
     "serve-favicon": "~2.3.0",
+    "socket.io": "^2.0.3",
     "ua-parser-js": "^0.7.14"
   }
 }
