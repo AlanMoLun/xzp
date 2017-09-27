@@ -21,9 +21,10 @@ app_config.mongoDBOptions = function(env){
             password = local.mongodb.password;
             url = "mongodb://" + user + ":" + password + "@" + host + ":" + port + "/" + database;
             break;
-        case 'production':
+        case 'production-dev':
             host = '172.17.0.1';
             database = 'group_orders';
+            port = 27027;
             user = local.mongodb.user;
             password = local.mongodb.password;
             url = "mongodb://" + user + ":" + password + "@" + host + ":" + port + "/" + database;
@@ -56,7 +57,7 @@ app_config.initDB = function(env){
             password = local.mysql.password;
             charset = 'utf8mb4';
             break;
-        case 'production':
+        case 'production-dev':
             host = 'xpzdb1.cno0bmfepeqp.us-east-1.rds.amazonaws.com';
             database = 'tuangou';
             user = local.mysql.user;
@@ -84,8 +85,8 @@ app_config.initRedis = function (env) {
             redisObj.port = '6379';
             redisObj.password = local.redis.password;
             break;
-        case 'production':
-            redisObj.host = '172.31.20.209';
+        case 'production-dev':
+            redisObj.host = '172.17.0.1';
             redisObj.port = '6379';
             redisObj.password = local.redis.password;
             break;
