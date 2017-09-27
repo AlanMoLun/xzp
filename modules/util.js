@@ -62,33 +62,33 @@ util.sqlExec = function (pool, strsql, sqlObj, next){
     });
 };
 
-util.mongoFind = function (queryObj, orderBy, next) {
+util.mongoFind = function (doc, queryObj, orderBy, next) {
     var url = global.mongoDbOptions.url;
     mongoDb.MongoClient.connect(url, function (err, db) {
         if (queryObj && !_.isEmpty(queryObj)) {
-            db.collection("group_orders").find(queryObj, {_id: false}).sort(orderBy).toArray(next);
+            db.collection(doc).find(queryObj, {_id: false}).sort(orderBy).toArray(next);
         } else {
-            db.collection("group_orders").find({}, {_id: false}).sort(orderBy).toArray(next);
+            db.collection(doc).find({}, {_id: false}).sort(orderBy).toArray(next);
         }
         db.close();
     });
 };
 
-util.mongoAggregate = function (aggregates, next) {
+util.mongoAggregate = function (doc, aggregates, next) {
     var url = global.mongoDbOptions.url;
     mongoDb.MongoClient.connect(url, function (err, db) {
-        db.collection("group_orders").aggregate(aggregates, next);
+        db.collection(doc).aggregate(aggregates, next);
         db.close();
     });
 };
 
-util.mongoUpdate = function (queryObj, updateObj, callback) {
+util.mongoUpdate = function (doc, queryObj, updateObj, callback) {
     var url = global.mongoDbOptions.url;
     mongoDb.MongoClient.connect(url, function (err, db) {
         async.waterfall([
                 function (next) {
                     if (queryObj && !_.isEmpty(queryObj)) {
-                        db.collection("group_orders").find(queryObj).toArray(next);
+                        db.collection(doc).find(queryObj).toArray(next);
                     } else {
                         next(null, null);
                     }
@@ -96,9 +96,9 @@ util.mongoUpdate = function (queryObj, updateObj, callback) {
                 function (foundObj, next) {
                     if (foundObj && !_.isEmpty(foundObj)) {
                         delete updateObj.id;
-                        db.collection("group_orders").updateOne(queryObj, {$set: updateObj}, next);
+                        db.collection(doc).updateOne(queryObj, {$set: updateObj}, next);
                     } else {
-                        db.collection("group_orders").insertOne(updateObj, next);
+                        db.collection(doc).insertOne(updateObj, next);
                     }
                 }],
             function (err, result) {
@@ -134,13 +134,13 @@ util.mongoUpdatePO = function (queryObj, updateObj, callback) {
     });
 };
 
-util.mongoRemove = function (authUser, queryObj, callback) {
+util.mongoRemove = function (doc, authUser, queryObj, callback) {
     var url = global.mongoDbOptions.url;
     mongoDb.MongoClient.connect(url, function (err, db) {
         async.waterfall([
                 function (next) {
                     if (queryObj && !_.isEmpty(queryObj)) {
-                        db.collection("group_orders").findOne(queryObj, next);
+                        db.collection(doc).findOne(queryObj, next);
                     } else {
                         next(null, null);
                     }
@@ -149,7 +149,7 @@ util.mongoRemove = function (authUser, queryObj, callback) {
                     if (foundObj && !_.isEmpty(foundObj)) {
                         var isUserIdMatch = util.matchUserId(authUser, foundObj.user_info);
                         if(isUserIdMatch) {
-                            db.collection("group_orders").findOneAndDelete(queryObj, next);
+                            db.collection(doc).findOneAndDelete(queryObj, next);
                         } else {
                             next(new Error("Authentication not pass, only owner can delete this order"));
                         }

@@ -81,7 +81,8 @@ function checkAuthFromCache(sessionId, userId, next){
             }
         });
     } else {
-        next(new Error("no sessionId provided"));
+        next(null, false, {});
+        // next(new Error("no sessionId provided"));
     }
 }
 

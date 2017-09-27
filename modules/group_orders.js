@@ -11,7 +11,7 @@ group_orders.list = function (id, next) {
     if (id) {
         queryObj.id = id;
     }
-    util.mongoFind(queryObj, orderBy, next);
+    util.mongoFind("group_orders", queryObj, orderBy, next);
 };
 
 group_orders.listByUserId = function (userId, callback) {
@@ -20,7 +20,7 @@ group_orders.listByUserId = function (userId, callback) {
             function (next) {
                 var queryObj = {"user_info.userId": userId};
                 var orderBy = {created_at: -1};
-                util.mongoFind(queryObj, orderBy, next);
+                util.mongoFind("group_orders", queryObj, orderBy, next);
             },
             function (next) {
                 var aggregates = [];
@@ -28,7 +28,7 @@ group_orders.listByUserId = function (userId, callback) {
                 aggregates.push({$match: {"orders.user_info.userId": userId}});
                 aggregates.push({$project: {_id: 0}});
                 aggregates.push({ $sort : { created_at : -1}});
-                util.mongoAggregate(aggregates, next);
+                util.mongoAggregate("group_orders", aggregates, next);
             }
         ], function (err, result) {
             result = _.flatten(result);
@@ -50,7 +50,7 @@ group_orders.update = function (updateObj, next) {
         queryObj.id = updateObj.group_order_id;
         updateObj.id = updateObj.group_order_id;
         delete  updateObj.group_order_id;
-        util.mongoUpdate(queryObj, updateObj, next);
+        util.mongoUpdate("group_orders", queryObj, updateObj, next);
     } else {
         next(new Error("provided object is empty"));
     }
@@ -83,7 +83,7 @@ group_orders.list_mysql = function (id, callback) {
 
 group_orders.remove = function (authUser, group_order_id, next) {
         var queryObj = {id: group_order_id};
-        util.mongoRemove(authUser, queryObj, next);
+        util.mongoRemove("group_orders", authUser, queryObj, next);
 };
 
 function getCategoryIDs(next) {
