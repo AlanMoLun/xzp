@@ -15,7 +15,7 @@ global.env = app_env.env;
 global.db = app_config.initDB(env);
 global.mongoDbOptions = app_config.mongoDBOptions(env);
 global.cache = app_config.initRedis(env);
-global.isDevelopment = (env== "development");
+global.isDevelopment = (env== "development" || env =="production-dev");
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
