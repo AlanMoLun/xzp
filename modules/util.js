@@ -165,6 +165,8 @@ util.mongoRemove = function (doc, authUser, queryObj, callback) {
 };
 
 util.matchUserId = function (authUser, user_info) {
+    console.log("authUser", authUser);
+    console.log("isDevelopment", isDevelopment);
     if(!authUser){
         return isDevelopment;
     }
