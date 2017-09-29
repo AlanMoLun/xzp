@@ -84,9 +84,17 @@ group_orders.update = function (updateObj, next) {
 group_orders.updatePO = function (updateObj, next) {
     if(updateObj && updateObj.order_id) {
         var queryObj = {id: updateObj.group_order_id, "orders.id": updateObj.order_id};
-        util.mongoUpdatePO(queryObj, updateObj.order, function (err, result) {
-            cache_manager.delByGroupId(updateObj.group_order_id, function() {
-               next(err, result);
+        util.mongoUpdatePO(queryObj, updateObj.order, function (err, result, isInsert) {
+            cache_manager.delByGroupId(updateObj.group_order_id, function () {
+                if (isInsert) {
+                    var userId = updateObj.order.user_info ? updateObj.order.user_info.userId : "";
+                    cache_manager.rpush_single_id_to_userId_list(userId, updateObj.group_order_id, function () {
+                        next(err, result);
+                    });
+                } else {
+                    next(err, result);
+                }
+                next(err, result);
             });
         });
     } else {
@@ -96,9 +104,21 @@ group_orders.updatePO = function (updateObj, next) {
 
 group_orders.remove = function (authUser, group_order_id, next) {
     var queryObj = {id: group_order_id};
-    util.mongoRemove("group_orders", authUser, queryObj, function (err, result) {
-        cache_manager.delByGroupId(group_order_id, function () {
-            next(err, result);
+    util.mongoRemove("group_orders", authUser, queryObj, function (err, result, foundObj) {
+        var userIds = [];
+        if (foundObj && !_.isEmpty(foundObj)) {
+            var user_info = _.pluck(foundObj.orders, "user_info");
+            userIds = _.pluck(user_info, "userId");
+            if (foundObj.user_info) {
+                userIds.push(foundObj.user_info.userId);
+            }
+            userIds = _.compact(userIds);
+            userIds = _.uniq(userIds);
+        }
+        cache_manager.remove_ids_from_userId_list(userIds, group_order_id, function () {
+            cache_manager.delByGroupId(group_order_id, function () {
+                next(err, result);
+            });
         });
     });
 };

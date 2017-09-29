@@ -48,10 +48,20 @@ cache_manager.delByGroupId = function (groupId, next) {
     cache.del(cache_key, next);
 };
 
-cache_manager.del_ids_from_userId_list = function(userId, next) {
+cache_manager.del_userId_list = function(userId, next) {
     var cache = global.cache;
     var cache_key = CACHE_KEYS_USER_LIST + userId;
     cache.del(cache_key, next);
+};
+
+cache_manager.remove_ids_from_userId_list = function(userIds, groupId, callback) {
+    var cache = global.cache;
+    async.map(userIds, function (userId, next) {
+        var cache_key = CACHE_KEYS_USER_LIST + userId;
+        cache.LREM(cache_key, 0, groupId, next);
+    }, function (err, result) {
+        callback(err, result);
+    });
 };
 
 cache_manager.rpush_ids_to_userId_list = function(userId, ids, next) {
@@ -60,7 +70,7 @@ cache_manager.rpush_ids_to_userId_list = function(userId, ids, next) {
     cache.expire(cache_key, 86400);
 };
 
-cache_manager.rpush_single_id_to_userId_list = function(userId, id, number, next) {
+cache_manager.rpush_single_id_to_userId_list = function(userId, id, next) {
     var cache_key = CACHE_KEYS_USER_LIST + userId;
     rpush_single_id_to_cache(cache_key, id, next);
 };

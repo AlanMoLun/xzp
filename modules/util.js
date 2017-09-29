@@ -124,6 +124,7 @@ util.mongoUpdate = function (doc, queryObj, updateObj, callback) {
 
 util.mongoUpdatePO = function (queryObj, updateObj, callback) {
     var url = global.mongoDbOptions.url;
+    var isInsert = false;
     mongoDb.MongoClient.connect(url, function (err, db) {
         async.waterfall([
                 function (next) {
@@ -138,12 +139,13 @@ util.mongoUpdatePO = function (queryObj, updateObj, callback) {
                         db.collection("group_orders").updateOne(queryObj, {$set: {"orders.$": updateObj}}, next);
                     } else {
                         queryObj = {id: queryObj.id};
+                        var isInsert = true;
                         db.collection("group_orders").updateOne(queryObj, {$push: {"orders": updateObj}}, next);
                     }
                 }],
             function (err, result) {
                 db.close();
-                callback(err, result);
+                callback(err, result, isInsert);
             });
     });
 };
@@ -163,7 +165,9 @@ util.mongoRemove = function (doc, authUser, queryObj, callback) {
                     if (foundObj && !_.isEmpty(foundObj)) {
                         var isUserIdMatch = util.matchUserId(authUser, foundObj.user_info);
                         if(isUserIdMatch) {
-                            db.collection(doc).findOneAndDelete(queryObj, next);
+                            db.collection(doc).findOneAndDelete(queryObj, function(err, result){
+                                next(err, result, foundObj);
+                            });
                         } else {
                             next(new Error("Authentication not pass, only owner can delete this order"));
                         }
@@ -171,9 +175,9 @@ util.mongoRemove = function (doc, authUser, queryObj, callback) {
                         next(new Error("group order not found"));
                     }
                 }],
-            function (err, result) {
+            function (err, result, foundObj) {
                 db.close();
-                callback(err, result);
+                callback(err, result, foundObj);
             });
     });
 };

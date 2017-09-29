@@ -17,6 +17,7 @@ app_config.mongoDBOptions = function(env){
         case 'development':
             host = '119.29.88.120';
             database = 'group_orders';
+            port = 27027;
             user = local.mongodb.user;
             password = local.mongodb.password;
             url = "mongodb://" + user + ":" + password + "@" + host + ":" + port + "/" + database;
