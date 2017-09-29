@@ -96,6 +96,7 @@ util.mongoAggregate = function (doc, aggregates, next) {
 
 util.mongoUpdate = function (doc, queryObj, updateObj, callback) {
     var url = global.mongoDbOptions.url;
+    var isInsert = false;
     mongoDb.MongoClient.connect(url, function (err, db) {
         async.waterfall([
                 function (next) {
@@ -110,12 +111,13 @@ util.mongoUpdate = function (doc, queryObj, updateObj, callback) {
                         delete updateObj.id;
                         db.collection(doc).updateOne(queryObj, {$set: updateObj}, next);
                     } else {
+                        isInsert = true;
                         db.collection(doc).insertOne(updateObj, next);
                     }
                 }],
             function (err, result) {
                 db.close();
-                callback(err, result);
+                callback(err, result, isInsert);
             });
     });
 };

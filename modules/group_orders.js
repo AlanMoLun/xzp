@@ -19,12 +19,10 @@ group_orders.listByUserId = function (userId, callback) {
     if (userId) {
         cache_manager.getGroupIdsForUser(userId, function (err, ids) {
             if (ids && !_.isEmpty(ids)) {
-                console.log("cp1", ids);
                 async.map(ids, function(id, next){
                     cache_manager.getByGroupId(id, next);
                 }, callback);
             } else {
-                console.log("cp2");
                 async.parallel([
                     function (next) {
                         var queryObj = {"user_info.userId": userId};
@@ -48,7 +46,7 @@ group_orders.listByUserId = function (userId, callback) {
                     });
 
                     var ids = _.pluck(result, "id");
-                    cache_manager.rpush_ids_to_userId_list(userId, ids, 100, function () {
+                    cache_manager.rpush_ids_to_userId_list(userId, ids, function () {
                         callback(err, result);
                     })
                 });
@@ -65,10 +63,18 @@ group_orders.update = function (updateObj, next) {
         queryObj.id = updateObj.group_order_id;
         updateObj.id = updateObj.group_order_id;
         delete  updateObj.group_order_id;
-        util.mongoUpdate("group_orders", queryObj, updateObj, function (err, result) {
-            cache_manager.delByGroupId(updateObj.id, function () {
+        util.mongoUpdate("group_orders", queryObj, updateObj, function (err, result, isInsert) {
+            if(isInsert){
+                if(updateObj && updateObj.user_info && updateObj.user_info.userId){
+                 cache_manager.rpush_single_id_to_userId_list(updateObj.user_info.userId, updateObj.id, function () {
+                    next(err, result);
+                 });
+                } else {
+                    next(err, result);
+                }
+            } else {
                 next(err, result);
-            });
+            }
         });
     } else {
         next(new Error("provided object is empty"));

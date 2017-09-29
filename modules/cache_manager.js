@@ -48,20 +48,24 @@ cache_manager.delByGroupId = function (groupId, next) {
     cache.del(cache_key, next);
 };
 
-cache_manager.rpush_ids_to_userId_list = function(userId, ids, number, next) {
+cache_manager.del_ids_from_userId_list = function(userId, next) {
+    var cache = global.cache;
     var cache_key = CACHE_KEYS_USER_LIST + userId;
-    console.log("cache_key_list", cache_key);
-    rpush_ids_to_cache(cache_key, ids, number, next);
-    console.log("key", cache_key);
+    cache.del(cache_key, next);
+};
+
+cache_manager.rpush_ids_to_userId_list = function(userId, ids, next) {
+    var cache_key = CACHE_KEYS_USER_LIST + userId;
+    rpush_ids_to_cache(cache_key, ids, next);
     cache.expire(cache_key, 86400);
 };
 
-cache_manager.rpush_single_id_to_userId_list = function(userId, ids, number, next) {
+cache_manager.rpush_single_id_to_userId_list = function(userId, id, number, next) {
     var cache_key = CACHE_KEYS_USER_LIST + userId;
-    rpush_single_id_to_cache(cache_key, id, next)
+    rpush_single_id_to_cache(cache_key, id, next);
 };
 
-function rpush_ids_to_cache(cache_key, ids, number, callback) {
+function rpush_ids_to_cache(cache_key, ids, callback) {
     var cache = global.cache;
     async.map(ids, function(id, next){
         if (typeof id == "object") {
@@ -71,8 +75,7 @@ function rpush_ids_to_cache(cache_key, ids, number, callback) {
     }, function(){
         cache.LLEN(cache_key, function (err, keyLength) {
             if (keyLength) {
-                number--;
-                cache.LTRIM(cache_key, 0, number, callback);
+                cache.LTRIM(cache_key, 0, 99, callback);
             } else {
                 if(typeof callback != "undefined"){
                     callback();
