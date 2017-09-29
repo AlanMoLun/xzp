@@ -6,12 +6,12 @@ var parser = new UAParser();
 var crypto = require("crypto");
 var mongoDb = require('mongodb');
 var async = require("async");
-var local = require('./local');
+var local = require('./local.js');
+var env = require('./set_env.js').env;
 
 var util = {};
 
-util.getModelFieldValue = function (model_name, model_field, fieldValue, next)
-{
+util.getModelFieldValue = function (model_name, model_field, fieldValue, next) {
     var pool = global.db;
     var cache = global.cache;
     if(typeof fieldValue == "string"){
@@ -69,6 +69,18 @@ util.mongoFind = function (doc, queryObj, orderBy, next) {
             db.collection(doc).find(queryObj, {_id: false}).sort(orderBy).toArray(next);
         } else {
             db.collection(doc).find({}, {_id: false}).sort(orderBy).toArray(next);
+        }
+        db.close();
+    });
+};
+
+util.mongoFindOne = function (doc, queryObj, next) {
+    var url = global.mongoDbOptions.url;
+    mongoDb.MongoClient.connect(url, function (err, db) {
+        if (queryObj && !_.isEmpty(queryObj)) {
+            db.collection(doc).findOne(queryObj, {_id: false}, next);
+        } else {
+            next(null, {});
         }
         db.close();
     });
@@ -232,6 +244,16 @@ util.parseJSON = function (str) {
         console.log("util parserJSON", e.message);
         return {};
     }
+};
+
+util.getCacheHeader = function (model_name, model_field){
+    var key_header = (env== "development" || env =="production-dev") ? "dev" : "pro";
+    return key_header + "_model_" + model_name + "_" +  model_field + "_";
+};
+
+util.getCacheListHeader = function (model_name, model_field){
+    var key_header = (env== "development" || env =="production-dev") ? "dev" : "pro";
+    return key_header + "_stack_" + model_name + "_" +  model_field + "_";
 };
 
 module.exports = util;

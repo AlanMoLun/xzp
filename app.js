@@ -8,6 +8,7 @@ var routes = require('./routes/index');
 
 var app_env = require('./modules/set_env.js');
 var app_config = require('./modules/config.js');
+var util = require('./modules/util.js');
 
 var app = express();
 

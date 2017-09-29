@@ -1,13 +1,16 @@
 var express = require('express');
 var router = express.Router();
-var util = require('../modules/util');
 var group_orders = require('../modules/group_orders.js');
 var login = require('../modules/login.js');
+var cache_manager = require('../modules/cache_manager.js');
 
 /* GET home page. */
 router.get('/test', function(req, res) {
-    var abc = util.getUserId("abc");
-    res.send(abc);
+    var cache_key = cache_manager.keys.userId + "64e5644f41493fcf9f08727a2176d5ee";
+    console.log("key1", cache_key);
+    cache_manager.getByUserId(cache_key, function(err, reply) {
+        res.send(reply);
+    });
 });
 
 router.get('/', function(req, res) {
@@ -24,6 +27,25 @@ router.get('/get', function(req,res) {
           res.send(err);
         }
       });
+});
+
+router.get('/getpush', function(req,res) {
+    var key = req.query.key;
+    cache.LRANGE(key, 0, -1, function (err, reply) {
+        res.send(reply);
+    });
+});
+
+router.get('/get', function(req,res) {
+    var key = req.query.key;
+    var cache = global.cache;
+    cache.get(key, function (err, reply) {
+        if(reply){
+            res.send(reply);
+        }else {
+            res.send(err);
+        }
+    });
 });
 
 router.get('/clear', function(req,res) {
@@ -124,17 +146,6 @@ router.post('/ajax/order/delete', function(req, res) {
             }
         }
     });
-});
-
-router.get('/ajax/item/get', function(req, res) {
-  var id = req.query.id;
-  util.getModelFieldValue("item", "id", id, function(err, dishObj){
-    if(err) {
-        res.status(500).json({error: err.message});
-    } else {
-      res.send(dishObj);
-    }
-  });
 });
 
 router.post('/ajax/wx/login', function(req, res) {
