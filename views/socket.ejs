@@ -22,8 +22,9 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
-//  var socket = io();
-  var socket = io({transports: ['websocket'], upgrade: false});
+  var socketUrl = "https://24745919.qcloud.la:8181";
+//  var socket = io({transports: ['websocket'], upgrade: false});
+  var socket = io(socketUrl, {transports: ['websocket'], upgrade: false});
   $('form').submit(function(){
     socket.emit('chat message', $('#m').val());
     $('#m').val('');
