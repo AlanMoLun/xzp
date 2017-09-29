@@ -23,8 +23,11 @@
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
   var socketUrl = "https://24745919.qcloud.la:8181";
-//  var socket = io({transports: ['websocket'], upgrade: false});
   var socket = io(socketUrl, {transports: ['websocket'], upgrade: false});
+
+  // 本地服务器不用填URL
+  // var socket = io({transports: ['websocket'], upgrade: false});
+
   $('form').submit(function(){
     socket.emit('chat message', $('#m').val());
     $('#m').val('');
