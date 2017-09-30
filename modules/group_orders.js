@@ -11,7 +11,11 @@ group_orders.list = function (id, next) {
     if (id) {
         cache_manager.getByGroupId(id, next);
     } else {
-        util.mongoFind("group_orders", {}, orderBy, next);
+        if(isDevelopment) {
+            util.mongoFind("group_orders", {}, orderBy, next);
+        } else {
+            next(new Error("groupId is not provided"));
+        }
     }
 };
 
