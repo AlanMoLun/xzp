@@ -7,12 +7,12 @@ var cache_manager = require('../modules/cache_manager.js');
 var group_orders = {};
 
 group_orders.list = function (id, next) {
-    var queryObj = {};
     var orderBy = {created_at: -1};
     if (id) {
-        queryObj.id = id;
+        cache_manager.getByGroupId(id, next);
+    } else {
+        util.mongoFind("group_orders", {}, orderBy, next);
     }
-    util.mongoFind("group_orders", queryObj, orderBy, next);
 };
 
 group_orders.listByUserId = function (userId, callback) {
