@@ -117,7 +117,7 @@ mongo_db.mongoUpdatePO = function (queryObj, updateObj, callback) {
                         db.collection("group_orders").updateOne(queryObj, {$set: {"orders.$": updateObj}}, next);
                     } else {
                         queryObj = {id: queryObj.id};
-                        var isInsert = true;
+                        isInsert = true;
                         db.collection("group_orders").updateOne(queryObj, {$push: {"orders": updateObj}}, next);
                     }
                 }],
