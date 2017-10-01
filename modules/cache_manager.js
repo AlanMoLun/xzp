@@ -19,16 +19,7 @@ cache_manager.getByGroupId = function (groupId, next) {
         if(reply && !_.isEmpty(reply)){
             next(err, util.parseJSON(reply));
         } else {
-            util.mongoFindOne("group_orders", {id: groupId}, function(err, foundOne){
-                if(foundOne && !_.isEmpty(foundOne)) {
-                    cache_manager.setByGroupId(groupId, foundOne, function () {
-                        cache.expire(cache_key, 86400);
-                        next(err, foundOne);
-                    });
-                } else {
-                    next(null, {});
-                }
-            });
+            next(null, {});
         }
     });
 };
@@ -38,8 +29,12 @@ cache_manager.setByGroupId = function (groupId, updateObj, next) {
     var cache_key = CACHE_KEYS_GROUP_ID + groupId;
     console.log("cache_key", cache_key);
     var updateObjString = JSON.stringify(updateObj);
-    cache.set(cache_key, updateObjString, next);
-    cache.expire(cache_key, 86400);
+    cache.set(cache_key, updateObjString, function(err, result) {
+        cache.expire(cache_key, 86400);
+        if (typeof next != "undefined") {
+            next(err, updateObj);
+        }
+    });
 };
 
 cache_manager.delByGroupId = function (groupId, next) {

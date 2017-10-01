@@ -11,14 +11,14 @@ user_info.list = function (id, next) {
     if (id) {
         queryObj.id = id;
     }
-    util.mongoFind("user_info", queryObj, orderBy, next);
+    mongo_db.mongoFind("user_info", queryObj, orderBy, next);
 };
 
 user_info.update = function (updateObj, next) {
     if(updateObj && updateObj.userId) {
         var queryObj = {};
         queryObj.userId = updateObj.userId;
-        util.mongoUpdate("user_info", queryObj, updateObj, next);
+        mongo_db.mongoUpdate("user_info", queryObj, updateObj, next);
     } else {
         next(new Error("provided object is empty"));
     }
