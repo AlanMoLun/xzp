@@ -92,17 +92,31 @@ function rpush_ids_to_cache(cache_key, ids, callback) {
 
 function rpush_single_id_to_cache(cache_key, id, next) {
     var cache = global.cache;
-    cache.LLEN(cache_key, function (err, keyLength) {
-        if (keyLength) {
-            cache.RPUSH(cache_key, id, function(){
-                cache_manager.RTRIM(cache_key, keyLength, 99, next);
-            });
+    cache.LRANGE(cache_key, 0, -1, function (err, ids) {
+        if (ids && ids.length) {
+            var foundId = ids.indexOf(id);
+            if(foundId == -1){
+                cache.RPUSH(cache_key, id, function(){
+                    RTRIM(cache_key, ids.length, 99, next);
+                });
+            } else {
+                if(typeof next != "undefined"){
+                    next();
+                }
+            }
         }else{
             if(typeof next != "undefined"){
                 next();
             }
         }
     });
+}
+
+function RTRIM(cache_key, keyLength, number, next) {
+    var cache = global.cache;
+    var start = keyLength - number + 1;
+    var end = start + number;
+    cache.LTRIM(cache_key, start, end, next);
 }
 
 module.exports = cache_manager;

@@ -64,11 +64,16 @@ mongo_db.mongoFindOne = function (doc, id, next) {
     }
 };
 
-mongo_db.mongoAggregate = function (doc, aggregates, next) {
+mongo_db.mongoGetAggregateIds = function (doc, aggregates, next) {
     var url = global.mongoDbOptions.url;
     mongoDb.MongoClient.connect(url, function (err, db) {
-        db.collection(doc).aggregate(aggregates, next);
-        db.close();
+        db.collection(doc).aggregate(aggregates, function(err, aggObj) {
+            var ids = _.pluck(aggObj, "id");
+            if(typeof next != "undefined") {
+                next(err, ids);
+            }
+            db.close();
+        });
     });
 };
 
@@ -86,8 +91,13 @@ mongo_db.mongoUpdate = function (doc, queryObj, updateObj, callback) {
                 },
                 function (foundObj, next) {
                     if (foundObj && !_.isEmpty(foundObj)) {
+                        var groupId = updateObj.id;
                         delete updateObj.id;
-                        db.collection(doc).updateOne(queryObj, {$set: updateObj}, next);
+                        db.collection(doc).updateOne(queryObj, {$set: updateObj}, function (err, result) {
+                            cache_manager.delByGroupId(groupId, function(){
+                                next(err, result);
+                            });
+                        });
                     } else {
                         isInsert = true;
                         db.collection(doc).insertOne(updateObj, next);

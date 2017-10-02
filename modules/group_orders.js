@@ -21,46 +21,45 @@ group_orders.list = function (id, next) {
 
 group_orders.listByUserId = function (userId, callback) {
     if (userId) {
+        var doc = "group_orders";
         cache_manager.getGroupIdsForUser(userId, function (err, ids) {
             if (ids && !_.isEmpty(ids)) {
-                async.map(ids, function(id, next){
-                    cache_manager.getByGroupId(id, next);
-                }, callback);
+                async.map(ids, function (id, next1) {
+                    mongo_db.mongoFindOne(doc, id, next1);
+                }, function (err, result) {
+                    result.sort(function (a, b) {
+                        return a.created_at - b.created_at;
+                    });
+                    callback(err, result);
+                });
             } else {
-                var doc = "group_orders";
                 async.parallel([
                     function (next) {
                         var queryObj = {"user_info.userId": userId};
-                        mongo_db.mongoFindIds(doc, queryObj, function (err, ids) {
-                            async.map(ids, function (id, next1) {
-                                // cache_manager.delByGroupId(id);
-                                mongo_db.mongoFindOne(doc, id, next1);
-                            }, function (err, result) {
-                                result = _.compact(result);
-                                next(err, result);
-                            });
-                        });
+                        mongo_db.mongoFindIds(doc, queryObj, next);
                     },
                     function (next) {
                         var aggregates = [];
                         aggregates.push({$unwind: "$orders"});
                         aggregates.push({$match: {"orders.user_info.userId": userId}});
-                        aggregates.push({$project: {_id: 0}});
-                        aggregates.push({ $sort : { created_at : -1}});
-                        mongo_db.mongoAggregate(doc, aggregates, next);
+                        aggregates.push({$project: {_id: 0, id: 1}});
+                        mongo_db.mongoGetAggregateIds(doc, aggregates, next);
                     }
-                ], function (err, result) {
-                    result = _.flatten(result);
-                    result = _.compact(result);
-                    result = _.uniq(result, 'id');
-                    result.sort(function (a, b) {
-                        return a.created_at - b.created_at;
+                ], function (err, ids) {
+                    console.log("ids", ids);
+                    ids = _.flatten(ids);
+                    ids = _.compact(ids);
+                    ids = _.uniq(ids);
+                    async.map(ids, function (id, next1) {
+                        mongo_db.mongoFindOne(doc, id, next1);
+                    }, function (err, result) {
+                        result.sort(function (a, b) {
+                            return a.created_at - b.created_at;
+                        });
+                        cache_manager.rpush_ids_to_userId_list(userId, ids, function () {
+                            callback(err, result);
+                        })
                     });
-
-                    var ids = _.pluck(result, "id");
-                    cache_manager.rpush_ids_to_userId_list(userId, ids, function () {
-                        callback(err, result);
-                    })
                 });
             }
         });
@@ -76,24 +75,26 @@ group_orders.update = function (updateObj, next) {
         updateObj.id = updateObj.group_order_id;
         delete  updateObj.group_order_id;
         mongo_db.mongoUpdate("group_orders", queryObj, updateObj, function (err, result, isInsert) {
-            if(isInsert){
-                if(updateObj && updateObj.user_info && updateObj.user_info.userId){
-                 cache_manager.rpush_single_id_to_userId_list(updateObj.user_info.userId, updateObj.id, function () {
-                    next(err, result);
-                 });
+            cache_manager.delByGroupId(updateObj.id, function () {
+                if (isInsert) {
+                    if (updateObj && updateObj.user_info && updateObj.user_info.userId) {
+                        cache_manager.rpush_single_id_to_userId_list(updateObj.user_info.userId, updateObj.id, function () {
+                            next(err, result);
+                        });
+                    } else {
+                        next(err, result);
+                    }
                 } else {
                     next(err, result);
                 }
-            } else {
-                next(err, result);
-            }
+            });
         });
     } else {
         next(new Error("provided object is empty"));
     }
 };
 
-group_orders.updatePO = function (updateObj, next) {
+group_orders.updatePO = function updatePO(updateObj, next) {
     if(updateObj && updateObj.order_id) {
         var queryObj = {id: updateObj.group_order_id, "orders.id": updateObj.order_id};
         mongo_db.mongoUpdatePO(queryObj, updateObj.order, function (err, result, isInsert) {
@@ -106,7 +107,6 @@ group_orders.updatePO = function (updateObj, next) {
                 } else {
                     next(err, result);
                 }
-                next(err, result);
             });
         });
     } else {
