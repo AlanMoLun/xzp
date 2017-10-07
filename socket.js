@@ -13,6 +13,7 @@ var options = {
 };
 
 var server = require('https').createServer(options, app);
+// var io = require('socket.io')(server);
 var io = require('socket.io')(server);
 var env = app_env.env;
 
@@ -33,14 +34,14 @@ app.get('/test', function (req, res) {
 
 //Socket
 io.set('transports', ['websocket']);
-io.on('connection', function (socket) {
+io.on('connect', function (socket) {
     console.log("connected");
 
-    socket.on('chat message', function(msg){
+    socket.on('message', function(msg){
         io.emit('chat message', msg);
     });
 
-    socket.on('disconnect', function (data) {
+    socket.on('close', function (data) {
         console.log("disconnected");
     });
 });
