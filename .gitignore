@@ -51,3 +51,5 @@ public/downloads/
 public/uploads/
 .idea/workspace.xml
 .idea/
+./cert/
+cert/
