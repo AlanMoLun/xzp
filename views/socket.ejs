@@ -19,23 +19,51 @@
   <input id="m" autocomplete="off" /><button>Send</button>
 </form>
 
-<script src="/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<!--<script src="/socket.io/socket.io.js"></script>-->
 <script>
-  var socketUrl = "wss://socket.thebusy.club";
-  var socket = io(socketUrl, {transports: ['websocket'], upgrade: false});
+//  var socketUrl = "wss://socket.thebusy.club";
+//  var socketUrl = "http://localhost:8181";
+//  var socket = io(socketUrl, {transports: ['websocket'], upgrade: false});
 
   // 本地服务器不用填URL
   // var socket = io({transports: ['websocket'], upgrade: false});
 
-  $('form').submit(function(){
-    socket.emit('chat message', $('#m').val());
-    $('#m').val('');
-    return false;
+//  $('form').submit(function(){
+//    socket.emit('chat message', $('#m').val());
+//    $('#m').val('');
+//    return false;
+//  });
+//  socket.on('chat message', function(msg){
+//    $('#messages').append($('<li>').text(msg));
+//  });
+
+var socketUrl = "wss://localhost:8181/";
+var webSocket = new WebSocket(socketUrl);
+
+  $('form').submit(function() {
+      webSocket.send($('#m').val());
+      $('#m').val('');
+      return false;
   });
-  socket.on('chat message', function(msg){
-    $('#messages').append($('<li>').text(msg));
-  });
+
+webSocket.onopen = function(evt) {
+    console.log("socket open");
+};
+
+webSocket.onerror = function(err) {
+    console.log("socket error", err);
+};
+
+webSocket.onmessage = function (message) {
+    try {
+        $('#messages').append($('<li>').text(message.data));
+    } catch (e) {
+        console.log('Invalid JSON: ', message);
+        return;
+    }
+};
+
 </script>
 
 </body>

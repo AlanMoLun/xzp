@@ -11,9 +11,10 @@ var options = {
     key: fs.readFileSync('cert/key.pem'),
     cert: fs.readFileSync('cert/cert.pem')
 };
-
 var server = require('https').createServer(options, app);
-// var io = require('socket.io')(server);
+
+// var server = require('http').createServer(app);
+var webSocketServer = require('websocket').server;
 var io = require('socket.io')(server);
 var env = app_env.env;
 
@@ -33,16 +34,32 @@ app.get('/test', function (req, res) {
 });
 
 //Socket
-io.set('transports', ['websocket']);
-io.on('connect', function (socket) {
-    console.log("connected");
+// io.set('transports', ['websocket']);
+// io.on('connection', function (socket) {
+//     console.log("connected");
+//
+//     socket.on('chat message', function(msg){
+//         io.emit('chat message', msg);
+//     });
+//
+//     socket.on('disconnect', function (data) {
+//         console.log("disconnected");
+//     });
+// });
 
-    socket.on('message', function(msg){
-        io.emit('chat message', msg);
+var wsServer = new webSocketServer({httpServer:server});
+
+wsServer.on('request', function(request) {
+    var connection = request.accept(null, request.origin);
+
+    connection.on('message', function(message) {
+        if (message.type === 'utf8') {
+            connection.send(message.utf8Data);
+        }
     });
 
-    socket.on('close', function (data) {
-        console.log("disconnected");
+    connection.on('close', function(connection) {
+        console.log("close", connection);
     });
 });
 
