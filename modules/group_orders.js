@@ -28,7 +28,7 @@ group_orders.listByUserId = function (userId, callback) {
                     mongo_db.mongoFindOne(doc, id, next1);
                 }, function (err, result) {
                     result.sort(function (a, b) {
-                        return a.created_at - b.created_at;
+                        return b.created_at - a.created_at;
                     });
                     callback(err, result);
                 });
@@ -54,7 +54,7 @@ group_orders.listByUserId = function (userId, callback) {
                         mongo_db.mongoFindOne(doc, id, next1);
                     }, function (err, result) {
                         result.sort(function (a, b) {
-                            return a.created_at - b.created_at;
+                            return b.created_at - a.created_at;
                         });
                         cache_manager.rpush_ids_to_userId_list(userId, ids, function () {
                             callback(err, result);
