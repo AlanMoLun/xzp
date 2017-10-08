@@ -3,6 +3,7 @@ var router = express.Router();
 var group_orders = require('../modules/group_orders.js');
 var login = require('../modules/login.js');
 var cache_manager = require('../modules/cache_manager.js');
+var message = require('../modules/message.js');
 
 /* GET home page. */
 router.get('/test', function(req, res) {
@@ -157,4 +158,25 @@ router.post('/ajax/wx/login', function(req, res) {
         }
     });
 });
+
+router.post('/ajax/message/send', function(req, res) {
+    login.checkAuth(req, function (err, auth, authUser) {
+        if (err) {
+            res.status(500).json({error: err.message});
+        } else {
+            if (auth || isDevelopment) {
+                message.send(authUser, req.body.message, function (err, reply) {
+                    if (err) {
+                        res.status(500).json({error: err.message});
+                    } else {
+                        res.send(reply);
+                    }
+                });
+            } else {
+                res.status(401).json({error: "Authentication not pass or expired, please login again"});
+            }
+        }
+    });
+});
+
 module.exports = router;

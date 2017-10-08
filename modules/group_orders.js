@@ -75,19 +75,17 @@ group_orders.update = function (updateObj, next) {
         updateObj.id = updateObj.group_order_id;
         delete  updateObj.group_order_id;
         mongo_db.mongoUpdate("group_orders", queryObj, updateObj, function (err, result, isInsert) {
-            cache_manager.delByGroupId(updateObj.id, function () {
-                if (isInsert) {
-                    if (updateObj && updateObj.user_info && updateObj.user_info.userId) {
-                        cache_manager.rpush_single_id_to_userId_list(updateObj.user_info.userId, updateObj.id, function () {
-                            next(err, result);
-                        });
-                    } else {
+            if (isInsert) {
+                if (updateObj && updateObj.user_info && updateObj.user_info.userId) {
+                    cache_manager.rpush_single_id_to_userId_list(updateObj.user_info.userId, updateObj.id, function () {
                         next(err, result);
-                    }
+                    });
                 } else {
                     next(err, result);
                 }
-            });
+            } else {
+                next(err, result);
+            }
         });
     } else {
         next(new Error("provided object is empty"));
@@ -98,16 +96,14 @@ group_orders.updatePO = function updatePO(updateObj, next) {
     if(updateObj && updateObj.order_id) {
         var queryObj = {id: updateObj.group_order_id, "orders.id": updateObj.order_id};
         mongo_db.mongoUpdatePO(queryObj, updateObj.order, function (err, result, isInsert) {
-            cache_manager.delByGroupId(updateObj.group_order_id, function () {
-                if (isInsert) {
-                    var userId = updateObj.order.user_info ? updateObj.order.user_info.userId : "";
-                    cache_manager.rpush_single_id_to_userId_list(userId, updateObj.group_order_id, function () {
-                        next(err, result);
-                    });
-                } else {
+            if (isInsert) {
+                var userId = updateObj.order.user_info ? updateObj.order.user_info.userId : "";
+                cache_manager.rpush_single_id_to_userId_list(userId, updateObj.group_order_id, function () {
                     next(err, result);
-                }
-            });
+                });
+            } else {
+                next(err, result);
+            }
         });
     } else {
         next(new Error("provided object is empty"));
@@ -116,7 +112,7 @@ group_orders.updatePO = function updatePO(updateObj, next) {
 
 group_orders.remove = function (authUser, group_order_id, next) {
     var queryObj = {id: group_order_id};
-    util.mongoRemove("group_orders", authUser, queryObj, function (err, result, foundObj) {
+    mongo_db.mongoRemove("group_orders", authUser, queryObj, function (err, result, foundObj) {
         var userIds = [];
         if (foundObj && !_.isEmpty(foundObj)) {
             var user_info = _.pluck(foundObj.orders, "user_info");
@@ -128,7 +124,7 @@ group_orders.remove = function (authUser, group_order_id, next) {
             userIds = _.uniq(userIds);
         }
         cache_manager.remove_ids_from_userId_list(userIds, group_order_id, function () {
-            cache_manager.delByGroupId(group_order_id, function () {
+            cache_manager.delById("group_orders", group_order_id, function () {
                 next(err, result);
             });
         });

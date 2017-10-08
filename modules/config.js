@@ -6,6 +6,23 @@ var _ = require('../libs/underscore-min.js');
 
 var app_config = {};
 
+app_config.getSocketUrl = function(env){
+    var socketUrl = "wss://localhost:8181/";
+    switch(env) {
+        case 'development':
+            socketUrl = "wss://localhost:8181/";
+            break;
+        case 'production-dev':
+            socketUrl = "wss://socket.thebusy.club/";
+            break;
+        case 'production-tengxunyun':
+            socketUrl = "wss://socket.thebusy.club/";
+            break;
+        default:
+    }
+    return socketUrl;
+};
+
 app_config.mongoDBOptions = function(env){
     var host = '';
     var port = 27017;

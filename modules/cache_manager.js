@@ -3,7 +3,6 @@ var util = require('./util.js');
 var async = require("async");
 
 var cache_manager = {};
-var CACHE_KEYS_GROUP_ID = util.getCacheHeader("group", "id");
 var CACHE_KEYS_USER_LIST =  util.getCacheListHeader("user", "id");
 
 cache_manager.getGroupIdsForUser = function (userId, next) {
@@ -12,9 +11,9 @@ cache_manager.getGroupIdsForUser = function (userId, next) {
     cache.LRANGE(cache_key, 0, -1, next);
 };
 
-cache_manager.getByGroupId = function (groupId, next) {
+cache_manager.getById = function (doc, docId, next) {
     var cache = global.cache;
-    var cache_key = CACHE_KEYS_GROUP_ID + groupId;
+    var cache_key = util.getCacheHeader(doc, docId) + docId;
     cache.get(cache_key, function(err, reply){
         if(reply && !_.isEmpty(reply)){
             next(err, util.parseJSON(reply));
@@ -24,12 +23,12 @@ cache_manager.getByGroupId = function (groupId, next) {
     });
 };
 
-cache_manager.setByGroupId = function (groupId, updateObj, next) {
+cache_manager.setById = function (docId, updateObj, next) {
     var cache = global.cache;
-    var cache_key = CACHE_KEYS_GROUP_ID + groupId;
+    var cache_key = util.getCacheHeader(doc, docId) + docId;
     console.log("cache_key", cache_key);
     var updateObjString = JSON.stringify(updateObj);
-    cache.set(cache_key, updateObjString, function(err, result) {
+    cache.set(cache_key, updateObjString, function(err) {
         cache.expire(cache_key, 86400);
         if (typeof next != "undefined") {
             next(err, updateObj);
@@ -37,9 +36,9 @@ cache_manager.setByGroupId = function (groupId, updateObj, next) {
     });
 };
 
-cache_manager.delByGroupId = function (groupId, next) {
+cache_manager.delById = function (doc, docId, next) {
     var cache = global.cache;
-    var cache_key = CACHE_KEYS_GROUP_ID + groupId;
+    var cache_key = util.getCacheHeader(doc, docId) + docId;
     cache.del(cache_key, next);
 };
 

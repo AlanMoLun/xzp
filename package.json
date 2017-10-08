@@ -18,6 +18,8 @@
     "serve-favicon": "~2.3.0",
     "socket.io": "^2.0.3",
     "ua-parser-js": "^0.7.14",
-    "websocket": "^1.0.24"
+    "websocket": "^1.0.24",
+    "moment": "^2.18.1",
+    "moment-timezone": "^0.5.11"
   }
 }

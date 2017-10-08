@@ -27,7 +27,7 @@ mongo_db.mongoFindAll = function (doc, callback) {
             ids = _.pluck(ids, "id");
             console.log("cp1", ids);
             async.map(ids, function (id, next1) {
-                // cache_manager.delByGroupId(id);
+                // cache_manager.delById(id);
                 mongo_db.mongoFindOne(doc, id, next1);
             }, function (err, result) {
                 db.close();
@@ -41,7 +41,7 @@ mongo_db.mongoFindAll = function (doc, callback) {
 mongo_db.mongoFindOne = function (doc, id, next) {
     var url = global.mongoDbOptions.url;
     if (id) {
-        cache_manager.getByGroupId(id, function (err, foundObj) {
+        cache_manager.getById(doc, id, function (err, foundObj) {
             if (foundObj && !_.isEmpty(foundObj)) {
                 console.log("cp21 from Cache", id);
                 next(null, foundObj);
@@ -50,7 +50,7 @@ mongo_db.mongoFindOne = function (doc, id, next) {
                     console.log("cp 22 from DB", id);
                     db.collection(doc).findOne({id:id}, {_id: false}, function (err, foundOne) {
                         if (foundOne && !_.isEmpty(foundOne)) {
-                            cache_manager.setByGroupId(foundOne.id, foundOne, next);
+                            cache_manager.setById(doc, foundOne.id, foundOne, next);
                         } else {
                             next(null, {});
                         }
@@ -94,7 +94,7 @@ mongo_db.mongoUpdate = function (doc, queryObj, updateObj, callback) {
                         var groupId = updateObj.id;
                         delete updateObj.id;
                         db.collection(doc).updateOne(queryObj, {$set: updateObj}, function (err, result) {
-                            cache_manager.delByGroupId(groupId, function(){
+                            cache_manager.delById(doc, groupId, function(){
                                 next(err, result);
                             });
                         });
@@ -124,7 +124,11 @@ mongo_db.mongoUpdatePO = function (queryObj, updateObj, callback) {
                 },
                 function (foundObj, next) {
                     if (foundObj && !_.isEmpty(foundObj)) {
-                        db.collection("group_orders").updateOne(queryObj, {$set: {"orders.$": updateObj}}, next);
+                        db.collection("group_orders").updateOne(queryObj, {$set: {"orders.$": updateObj}}, function(err, result){
+                            cache_manager.delById(doc, queryObj.id, function(){
+                                next(err, result);
+                            });
+                        });
                     } else {
                         queryObj = {id: queryObj.id};
                         isInsert = true;
@@ -167,6 +171,12 @@ mongo_db.mongoRemove = function (doc, authUser, queryObj, callback) {
                 db.close();
                 callback(err, result, foundObj);
             });
+    });
+};
+
+mongo_db.insertMessage = function (doc, msgObj, next) {
+    mongoDb.MongoClient.connect(url, function (err, db) {
+        db.collection(doc).insertOne(msgObj, next);
     });
 };
 
