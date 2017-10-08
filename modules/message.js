@@ -20,7 +20,7 @@ message.send = function(authUser, msgObj, callback){
                 next(new Error("provided object is empty"));
             }
         }
-    ],function(err, msgObj){
+    ],function(err){
         sendToSocket(msgObj.content, function() {
             callback(err, msgObj);
         });
