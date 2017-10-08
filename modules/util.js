@@ -15,12 +15,12 @@ util.matchUserId = function (authUser, user_info) {
     return (authUser.userId == user_info.userId);
 };
 
-util.getTS = function (datetime) {
+util.getTS = function (datetime, isSecond) {
     var intDateTime = new Date().getTime();
     if (datetime) {
         intDateTime = new Date().getTime(datetime);
     }
-    return parseInt(intDateTime / 1000, 10);
+    return isSecond ? parseInt(intDateTime / 1000, 10) : intDateTime;
 };
 
 util.getToken = function (openId, session_key) {

@@ -179,4 +179,24 @@ router.post('/ajax/message/send', function(req, res) {
     });
 });
 
+router.get('/ajax/message/list_by_orderId', function(req, res) {
+    login.checkAuth(req, function(err, auth, authUser){
+        if(err) {
+            res.status(500).json({error: err.message});
+        } else {
+            if(auth || isDevelopment) {
+                var orderId = req.query.orderId;
+                message.listByOrderId(authUser, orderId, function (err, orders) {
+                    if (err) {
+                        res.status(500).json({error: err.message});
+                    } else {
+                        res.send(orders);
+                    }
+                });
+            } else {
+                res.status(401).json({error: "Authentication not pass or expired, please login again"});
+            }
+        }
+    });
+});
 module.exports = router;

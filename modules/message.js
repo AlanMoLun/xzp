@@ -11,6 +11,7 @@ var message = {};
 
 message.send = function(authUser, msgObj, callback){
     msgObj.created_at = moment().utc().format("YYYY-MM-DD HH:mm:ss");
+    msgObj.id = util.getTS();
     console.log("发送到webSocket服务器", msgObj.content);
     async.waterfall([
         function(next){
@@ -25,6 +26,10 @@ message.send = function(authUser, msgObj, callback){
             callback(err, msgObj);
         });
     });
+};
+
+message.listByOrderId = function(authUser, orderId, next) {
+
 };
 
 function sendToSocket(content, next){
