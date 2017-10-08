@@ -23,7 +23,7 @@ cache_manager.getById = function (doc, docId, next) {
     });
 };
 
-cache_manager.setById = function (docId, updateObj, next) {
+cache_manager.setById = function (doc, docId, updateObj, next) {
     var cache = global.cache;
     var cache_key = util.getCacheHeader(doc, docId) + docId;
     console.log("cache_key", cache_key);
