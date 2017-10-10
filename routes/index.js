@@ -7,11 +7,21 @@ var message = require('../modules/message.js');
 
 /* GET home page. */
 router.get('/test', function(req, res) {
-    var cache_key = cache_manager.keys.userId + "64e5644f41493fcf9f08727a2176d5ee";
-    console.log("key1", cache_key);
-    cache_manager.getByUserId(cache_key, function(err, reply) {
-        res.send(reply);
-    });
+    var a = "abc";
+    var b = "bcd";
+    var c = "efg";
+
+    var id = 1;
+    var id2 = 2;
+    var id3 = 3;
+
+    var tester = {};
+    if (!tester[a]) {
+        tester[a] = [];
+    }
+    tester[a].push(id);
+    console.log("tester", tester);
+    res.send("ok");
 });
 
 router.get('/', function(req, res) {

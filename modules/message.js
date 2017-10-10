@@ -4,7 +4,6 @@ var util = require('../modules/util');
 var moment = require('moment-timezone');
 var async = require('async');
 var mongo_db  = require('../modules/mongo_db.js');
-var WebSocketClient = require('websocket').client;
 
 var message = {};
 
@@ -32,32 +31,11 @@ message.listByOrderId = function(authUser, orderId, next) {
 };
 
 function sendToSocket(msgObj, next) {
-    var msgObjToSend = JSON.stringify({orderId: msgObj.orderId, content: msgObj.content});
-    var options = {tlsOptions: {rejectUnauthorized: false}};
-    var wSocket = new WebSocketClient(options);
-    wSocket.connect(socketUrl);
-    wSocket.on('connectFailed', function (error) {
-        console.log('Connect Error: ' + error.toString());
-    });
-
-    wSocket.on('connect', function (connection) {
-        console.log('WebSocket Client Connected');
-        connection.sendUTF(msgObjToSend, next);
-
-        connection.on('error', function (error) {
-            console.log("Connection Error: " + error.toString());
-        });
-
-        connection.on('close', function () {
-            console.log('Connection Closed');
-        });
-
-        // connection.on('message', function(message) {
-        //     if (message.type === 'utf8') {
-        //         console.log("Received: '" + message.utf8Data + "'");
-        //     }
-        // });
-    });
+    var event = {
+        type: "message",
+        payload: {orderId: msgObj.orderId, content: msgObj.content}
+    };
+    pub.publish("EVENT BUS", JSON.stringify(event), next);
 }
 
 module.exports = message;
