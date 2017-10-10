@@ -42,12 +42,15 @@ var socketUrl = "wss://localhost:8181/";
 var webSocket = new WebSocket(socketUrl);
 
   $('form').submit(function() {
-      webSocket.send($('#m').val());
+      var msg = JSON.stringify({content: $('#m').val(), orderId: "dc1d04f0-1c69-4af9-ae6f-3705cf62a453"});
+      webSocket.send(msg);
       $('#m').val('');
       return false;
   });
 
 webSocket.onopen = function(evt) {
+    var msg = JSON.stringify({content: "", orderId: "dc1d04f0-1c69-4af9-ae6f-3705cf62a453"});
+    webSocket.send(msg);
     console.log("socket open");
 };
 

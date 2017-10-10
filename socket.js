@@ -18,7 +18,7 @@ var env = app_env.env;
 global.cache = app_config.initRedis(env);
 global.socketPort = 8181;
 
-//=======================IN PROGRESS DON'T MODIFY HERE=============================
+//====================================================
 app.set('view engine', 'ejs');
 
 app.get('/ping.html', function (req, res) {
@@ -30,18 +30,36 @@ app.get('/test', function (req, res) {
 });
 
 var wsServer = new webSocketServer({httpServer:server});
+var wSockets = [];
 
 wsServer.on('request', function(request) {
     var connection = request.accept(null, request.origin);
-    connection.on('message', function(msgObj) {
-        if (msgObj && msgObj.type === 'utf8') {
-            console.log("服务器收到:", msgObj.utf8Data);
-            connection.send(msgObj.utf8Data);
+    connection.on('message', function (msgObj) {
+        if (msgObj && msgObj.type === 'utf8' && msgObj.utf8Data) {
+            var utf8Data = util.parseJSON(msgObj.utf8Data);
+            var orderId = utf8Data.orderId;
+            if(!connection.orderId) {
+                connection.orderId = orderId;
+                // console.log("客户端连接:", orderId);
+                wSockets.push(connection);
+            }
+
+            console.log("sockets:", wSockets.length);
+
+            if (utf8Data.content) {
+                rooms = _.where(wSockets, {orderId: orderId});
+                rooms.map(function (room) {
+                    // console.log("服务器发出:", msgObj);
+                    room.sendUTF(utf8Data.content);
+                });
+            }
         }
     });
 
-    connection.on('close', function(connection) {
+    connection.on('close', function (connection) {
         console.log("close", connection);
+        console.log("wSockets", wSockets.orderId);
+        // wSockets = _.reject(wSockets, function(wSocket) { return wSocket.orderId != "orderId"; });
     });
 });
 
