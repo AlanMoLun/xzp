@@ -53,3 +53,4 @@ public/uploads/
 .idea/
 ./cert/
 cert/
+.node_modules
